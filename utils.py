@@ -21,11 +21,16 @@ def get_data():
             data.append(row)
     return data
 
-def plot_data(data):
+def plot_data(data, x_values, y_values):
     x = [int(row['km']) for row in data]
     y = [int(row['price']) for row in data]
     plt.scatter(x, y)
+    plt.plot(x_values, y_values, color='red')
     plt.xlabel('km')
     plt.ylabel('price')
     plt.title('Price of cars based on their mileage')
+    plt.show()
+
+def plot_linear_regression(x, y):
+    plt.plot(x, y)
     plt.show()
