@@ -32,10 +32,4 @@ def plot_data_and_regression(data, theta0, theta1):
     plt.xlabel('km')
     plt.ylabel('price')
     plt.title('Price of cars based on their mileage')
-    y_min, y_max = plt.ylim()
-    plt.yticks(np.arange(y_min, y_max, 500))
-    plt.show()
-
-def plot_linear_regression(x, y):
-    plt.plot(x, y)
-    plt.show()
+    plt.draw()
