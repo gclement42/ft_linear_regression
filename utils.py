@@ -1,5 +1,6 @@
 import os
 import csv
+import numpy as np
 import matplotlib.pyplot as plt
 
 def check_if_file_is_readable():
@@ -21,14 +22,18 @@ def get_data():
             data.append(row)
     return data
 
-def plot_data(data, x_values, y_values):
+def plot_data_and_regression(data, theta0, theta1):
     x = [int(row['km']) for row in data]
     y = [int(row['price']) for row in data]
     plt.scatter(x, y)
+    x_values = np.linspace(min(x), max(x), 1000)
+    y_values = theta0 + theta1 * x_values
     plt.plot(x_values, y_values, color='red')
     plt.xlabel('km')
     plt.ylabel('price')
     plt.title('Price of cars based on their mileage')
+    y_min, y_max = plt.ylim()
+    plt.yticks(np.arange(y_min, y_max, 500))
     plt.show()
 
 def plot_linear_regression(x, y):
