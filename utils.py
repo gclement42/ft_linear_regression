@@ -18,18 +18,6 @@ def get_data():
         reader = csv.reader(csvfile)
         next(reader)
         for row in reader:
-            row = { 'km': row[0], 'price': row[1] }
+            row = { 'features': row[0], 'target': row[1] }
             data.append(row)
     return data
-
-def plot_data_and_regression(data, theta0, theta1):
-    x = [int(row['km']) for row in data]
-    y = [int(row['price']) for row in data]
-    plt.scatter(x, y)
-    x_values = np.linspace(min(x), max(x), 1000)
-    y_values = theta0 + theta1 * x_values
-    plt.plot(x_values, y_values, color='red')
-    plt.xlabel('km')
-    plt.ylabel('price')
-    plt.title('Price of cars based on their mileage')
-    plt.draw()
