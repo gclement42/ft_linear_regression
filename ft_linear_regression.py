@@ -7,8 +7,6 @@ class LinearRegression:
         self.learning_rate = learning_rate
         self.a = a
         self.b = b
-        self.prev_a = a
-        self.prev_b = b
         self.x = np.array([int(row['features']) for row in data])
         self.y = np.array([int(row['target']) for row in data])
         self.m = len(data)
