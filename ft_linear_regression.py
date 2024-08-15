@@ -35,7 +35,7 @@ class LinearRegression:
         self.b = self.b - self.learning_rate * np.multiply((1 / self.m), np.mean(np.multiply(errors, self.x)))
 
     def calc_predictions(self):
-        predictions = np.multiply(self.a, self.x) + self.b
+        predictions = np.multiply(self.a, np.mean(self.x)) + self.b
         return predictions
     
     def train(self):
@@ -60,15 +60,16 @@ class LinearRegression:
         
         plt.scatter(self.x, self.y)
         x_values = np.linspace(min(self.x), max(self.x), self.m)
-        y_values = np.multiply(self.a, x_values) + self.b
+        y_values = self.a * x_values + self.b
         self.line = plt.plot(x_values, y_values, color='red')
+        plt.ylim(0, max(self.y))
         plt.xlabel('km')
         plt.ylabel('price')
         plt.title('Price of cars based on their mileage')
         plt.draw()
         plt.pause(0.1)
 
-model = LinearRegression(0.0000025, 0, -1, utils.get_data())
+model = LinearRegression(0.00001, 0, 0, utils.get_data())
 model.train()
 
 
