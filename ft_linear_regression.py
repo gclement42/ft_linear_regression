@@ -16,56 +16,59 @@ class LinearRegression:
         fig, self.ax = plt.subplots()
 
     def cost_function(self, predictions):
-        error = np.sum(predictions - self.y)
-        cost = 1 / (2 * self.m) * np.sum(error ** 2)
+        error = np.mean(predictions - self.y)
+        cost = 1 / (2 * self.m) * np.mean(error ** 2)
         return cost
     
-    def gradient_descent(self, predictions):
-        errors = predictions - self.y
-        tmp_a = self.prev_a - (1 / self.m) * (self.learning_rate * np.sum(errors))
-        tmp_b = self.prev_b - (1 / self.m) * (self.learning_rate * np.sum(errors * self.x))
-        print(f'tmp_a: {tmp_a}, tmp_b: {tmp_b}')
-        self.prev_a = self.a
-        self.prev_b = self.b
-        self.a = tmp_a
-        self.b = tmp_b
+    def derivative(self):
+        predictions = self.calc_predictions()
+        errors = np.mean(predictions - self.y)
+        d_a = (1 / self.m) * np.mean(np.multiply(errors, self.x))
+        d_b = (1 / self.m) * np.mean(errors)
+        print(f'd_a: {d_a}, d_b: {d_b}')
+        return d_a, d_b
+    
+    def gradient_descent(self):
+        predictions = self.calc_predictions()
+        errors = np.mean(predictions - self.y)
+        self.a = self.a - self.learning_rate * np.multiply((1 / self.m), np.sum(errors))
+        self.b = self.b - self.learning_rate * np.multiply((1 / self.m), np.mean(np.multiply(errors, self.x)))
+
+    def calc_predictions(self):
+        predictions = np.multiply(self.a, self.x) + self.b
+        return predictions
     
     def train(self):
-        for _ in range(20):
+        cost = 11
+        iterations = 0
+        while cost > 10:
             self.plot_data_and_regression()
-            predictions = self.a * self.x + self.b
+            predictions = self.calc_predictions()
             cost = self.cost_function(predictions)
-            self.gradient_descent(predictions)
-            # print(f'cost: {cost}')
-            plt.show()
+            self.gradient_descent()
+            print(f'i: {iterations}, cost: {cost}, a: {self.a}, b: {self.b}')
+            iterations += 1
+            if iterations > 100:
+                print('Reached maximum number of iterations')
+                break
+        plt.ioff()
+        plt.show()
+        print(f'Training completed after {iterations} iterations')
 
     def plot_data_and_regression(self):
         self.ax.clear()
         
         plt.scatter(self.x, self.y)
-        x_values = np.linspace(min(self.x), max(self.x), 100)
-        y_values = self.a * x_values + self.b
-        plt.plot(x_values, y_values, color='red')
+        x_values = np.linspace(min(self.x), max(self.x), self.m)
+        y_values = np.multiply(self.a, x_values) + self.b
+        self.line = plt.plot(x_values, y_values, color='red')
         plt.xlabel('km')
         plt.ylabel('price')
         plt.title('Price of cars based on their mileage')
         plt.draw()
         plt.pause(0.1)
 
-# def loss_function(learning_rate, theta0, theta1, data):
-#     m = len(data)
-#     price = np.array([int(row['target']) for row in data])
-#     km = np.array([int(row['features']) for row in data])
-#     predictions = theta0 + theta1 * km
-#     errors = predictions - price
-#     tmp_theta0 = theta0 - learning_rate * (1 / m) * np.sum(errors)
-#     tmp_theta1 = theta1 - learning_rate * (1 / m) * np.sum(errors * km)
-#     print(f'tmp_theta0: {tmp_theta0}, tmp_theta1: {tmp_theta1}')
-#     theta0 -= tmp_theta0
-#     theta1 -= tmp_theta1
-#     return theta0, theta1
-
-model = LinearRegression(0.000001, 0, 0, utils.get_data())
+model = LinearRegression(0.0000025, 0, -1, utils.get_data())
 model.train()
 
 
