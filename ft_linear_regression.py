@@ -55,7 +55,7 @@ class LinearRegression:
         while True:
             self.plot_data_and_regression()
             cost = self.cost_function()
-            if abs(cost - self.prev_cost) < 0.000001:
+            if abs(cost - self.prev_cost) < 0.0000001:
                 print(f'Cost function converged after {iterations} iterations with cost: {cost}')
                 break
             self.gradient_descent()
@@ -83,7 +83,7 @@ class LinearRegression:
         plt.draw()
         plt.pause(0.1)
 
-model = LinearRegression(0.1, 0, 0, utils.get_data())
+model = LinearRegression(0.5, 0, 0, utils.get_data())
 model.train()
 
 
