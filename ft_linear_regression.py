@@ -5,13 +5,15 @@ import matplotlib.pyplot as plt
 class LinearRegression:
     def __init__(self, learning_rate, a, b, data):
         self.learning_rate = learning_rate
-        self.a = a
-        self.b = b
+        self.a = 0
+        self.b = 0
         self.prev_a = 0
         self.prev_b = 0
-        self.all_costs = [0]
+        self.prev_cost = 0
         self.x = np.array([float(row['features']) for row in data])
+        self.x = utils.normalisation(self.x)
         self.y = np.array([float(row['target']) for row in data])
+        self.y = utils.normalisation(self.y)
         self.m = len(data)
         plt.ion()
         fig, self.ax = plt.subplots()
@@ -27,19 +29,18 @@ class LinearRegression:
         d_a = float(0)
         d_b = float(0)
         for i in range(0, self.m):
-            d_a += (self.prev_a + (self.prev_b * self.x[i])) - float(self.y[i])
-            d_b += (self.prev_a + (self.prev_b * self.x[i]) - float(self.y[i])) * float(self.x[i])
+            d_a += (self.prev_a + (self.prev_b * self.x[i])) - self.y[i]
+            d_b += (self.prev_a + (self.prev_b * self.x[i]) - self.y[i]) * self.x[i]
         d_a = (1 / self.m) * d_a
         d_b = (1 / self.m) * d_b
         return d_a, d_b
     
     def gradient_descent(self):
         d_a, d_b = self.derivative()
-        # print(f'd_a: {d_a}, d_b: {d_b}')
-        self.a = self.prev_a - (self.learning_rate * d_a)
-        self.b = self.prev_b - (self.learning_rate * d_b)
         self.prev_a = self.a
         self.prev_b = self.b
+        self.a = self.prev_a - (self.learning_rate * d_a)
+        self.b = self.prev_b - (self.learning_rate * d_b)
 
     def calc_predictions(self):
         predictions = self.b + (self.a * self.x)
@@ -54,14 +55,14 @@ class LinearRegression:
         while True:
             self.plot_data_and_regression()
             cost = self.cost_function()
-            if abs(cost - self.all_costs[iterations]) < 1:
-                print('Converged')
+            if abs(cost - self.prev_cost) < 0.000001:
+                print(f'Cost function converged after {iterations} iterations with cost: {cost}')
                 break
-            self.all_costs.append(cost)
             self.gradient_descent()
             print(f'i: {iterations}, cost: {cost}, a: {self.a}, b: {self.b}')
             iterations += 1
-            if iterations > 100:
+            self.prev_cost = cost
+            if iterations > 1000:
                 print('Reached maximum number of iterations')
                 break
         plt.ioff()
@@ -82,7 +83,7 @@ class LinearRegression:
         plt.draw()
         plt.pause(0.1)
 
-model = LinearRegression(0.00000000001, 0, 0, utils.get_data())
+model = LinearRegression(0.1, 0, 0, utils.get_data())
 model.train()
 
 

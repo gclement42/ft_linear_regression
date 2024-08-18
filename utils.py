@@ -21,3 +21,6 @@ def get_data():
             row = { 'features': row[0], 'target': row[1] }
             data.append(row)
     return data
+
+def normalisation(s):
+    return [((_ - min(s)) / (max(s) - min(s))) for _ in s]
