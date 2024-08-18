@@ -1,19 +1,20 @@
 import utils
 import numpy as np
 import matplotlib.pyplot as plt
+import json
 
 class LinearRegression:
     def __init__(self, learning_rate, a, b, data):
         self.learning_rate = learning_rate
-        self.a = 0
-        self.b = 0
+        self.a = a
+        self.b = b
         self.prev_a = 0
         self.prev_b = 0
         self.prev_cost = 0
-        self.x = np.array([float(row['features']) for row in data])
-        self.x = utils.normalisation(self.x)
-        self.y = np.array([float(row['target']) for row in data])
-        self.y = utils.normalisation(self.y)
+        self._x = np.array([float(row['features']) for row in data])
+        self.x = utils.normalisation(self._x)
+        self._y = np.array([float(row['target']) for row in data])
+        self.y = utils.normalisation(self._y)
         self.m = len(data)
         plt.ion()
         fig, self.ax = plt.subplots()
@@ -62,12 +63,18 @@ class LinearRegression:
             print(f'i: {iterations}, cost: {cost}, a: {self.a}, b: {self.b}')
             iterations += 1
             self.prev_cost = cost
-            if iterations > 1000:
+            if iterations > 5000:
                 print('Reached maximum number of iterations')
                 break
         plt.ioff()
         plt.show()
         print(f'Training completed after {iterations} iterations')
+        deltaX = max(self._x) - min(self._x)
+        deltaY = max(self._y) - min(self._y)
+        t0 = ((deltaY * self.a) + min(self._y) - self.b * (deltaY / deltaX) * min(self._x))
+        t1 = deltaY * self.b / deltaX
+        with open('params.json', 'w') as f:
+            json.dump({'theta0': t0, 'theta1': t1}, f)
 
     def plot_data_and_regression(self):
         self.ax.clear()
@@ -83,7 +90,7 @@ class LinearRegression:
         plt.draw()
         plt.pause(0.1)
 
-model = LinearRegression(0.5, 0, 0, utils.get_data())
+model = LinearRegression(0.075, 0, 0, utils.get_data())
 model.train()
 
 
