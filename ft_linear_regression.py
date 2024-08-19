@@ -22,7 +22,8 @@ class LinearRegression:
     def cost_function(self):
         global_cost = 0
         for i in range(0, self.m):
-            cost_i = ((self.a + (self.b * self.x[i])) - float(self.y[i])) ** 2
+            predictions = self.calc_predictions(self.x[i])
+            cost_i = (predictions - float(self.y[i])) ** 2
             global_cost += cost_i
         return (1 / (2 * self.m)) * global_cost
     
@@ -30,8 +31,9 @@ class LinearRegression:
         d_a = float(0)
         d_b = float(0)
         for i in range(0, self.m):
-            d_a += (self.prev_a + (self.prev_b * self.x[i])) - self.y[i]
-            d_b += (self.prev_a + (self.prev_b * self.x[i]) - self.y[i]) * self.x[i]
+            predictions = self.calc_predictions(self.x[i])
+            d_a += predictions - self.y[i]
+            d_b += (predictions - self.y[i]) * self.x[i]
         d_a = (1 / self.m) * d_a
         d_b = (1 / self.m) * d_b
         return d_a, d_b
@@ -43,13 +45,19 @@ class LinearRegression:
         self.a = self.prev_a - (self.learning_rate * d_a)
         self.b = self.prev_b - (self.learning_rate * d_b)
 
-    def calc_predictions(self):
-        predictions = self.b + (self.a * self.x)
+    def calc_predictions(self, mileage):
+        predictions = self.a + self.b * mileage
         return predictions
     
-    def calc_errors(self, predictions):
-        errors = predictions - self.y
-        return errors
+    def write_params(self):
+        deltaX = max(self._x) - min(self._x)
+        deltaY = max(self._y) - min(self._y)
+        t0 = ((deltaY * self.a) + min(self._y) - self.b * (deltaY / deltaX) * min(self._x))
+        t1 = deltaY * self.b / deltaX
+        if  not utils.check_if_file_is_writable('params.json'):
+            exit(1)
+        with open('params.json', 'w') as f:
+            json.dump({'theta0': t0, 'theta1': t1}, f)
 
     def train(self):
         iterations = 0
@@ -62,23 +70,17 @@ class LinearRegression:
             self.gradient_descent()
             print(f'i: {iterations}, cost: {cost}, a: {self.a}, b: {self.b}')
             iterations += 1
-            self.prev_cost = cost
             if iterations > 5000:
                 print('Reached maximum number of iterations')
                 break
+            self.prev_cost = cost
         plt.ioff()
         plt.show()
+        self.write_params()
         print(f'Training completed after {iterations} iterations')
-        deltaX = max(self._x) - min(self._x)
-        deltaY = max(self._y) - min(self._y)
-        t0 = ((deltaY * self.a) + min(self._y) - self.b * (deltaY / deltaX) * min(self._x))
-        t1 = deltaY * self.b / deltaX
-        with open('params.json', 'w') as f:
-            json.dump({'theta0': t0, 'theta1': t1}, f)
 
     def plot_data_and_regression(self):
         self.ax.clear()
-        
         plt.scatter(self.x, self.y)
         x_values = np.linspace(min(self.x), max(self.x), 100)
         y_values = self.a + self.b * x_values
@@ -90,7 +92,11 @@ class LinearRegression:
         plt.draw()
         plt.pause(0.1)
 
-model = LinearRegression(0.075, 0, 0, utils.get_data())
+
+data = utils.get_data()
+if data is None:
+    exit(1)
+model = LinearRegression(0.75, 0, 0, data)
 model.train()
 
 
